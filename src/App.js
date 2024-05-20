@@ -16,10 +16,14 @@ export function App() {
   })
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [updateData, setUpdateData] = useState(true)
 
   useEffect(() => {
-    getAlunos()
-  }, [])
+    if (updateData) {
+      getAlunos()
+      setUpdateData(false)
+    }
+  }, [updateData])
 
   function openCreationModal() {
     setIsCreationModalOpen(true)
@@ -74,6 +78,7 @@ export function App() {
       .post(baseUrl, alunoSelecionado)
       .then((response) => {
         setData(data.concat(response.data))
+        setUpdateData(true)
         closeCreationModal()
       })
       .catch((error) => {
@@ -101,6 +106,7 @@ export function App() {
             aluno.idade = resposta.idade
           }
         })
+        setUpdateData(true)
         closeEditModal()
       })
       .catch((error) => {
@@ -113,6 +119,7 @@ export function App() {
       .delete(baseUrl + '/' + alunoSelecionado.id)
       .then((response) => {
         setData(data.filter((aluno) => aluno.id !== response.data))
+        setUpdateData(true)
         getAlunos()
         closeDeleteModal()
       })
