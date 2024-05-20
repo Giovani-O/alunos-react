@@ -15,10 +15,11 @@ export function App() {
     idade: '',
   })
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
   useEffect(() => {
     getAlunos()
-  })
+  }, [])
 
   function openCreationModal() {
     setIsCreationModalOpen(true)
@@ -36,7 +37,15 @@ export function App() {
     setIsEditModalOpen(false)
   }
 
-  const baseUrl = 'https://localhost:44377/api/alunos'
+  function openDeleteModal() {
+    setIsDeleteModalOpen(true)
+  }
+
+  function closeDeleteModal() {
+    setIsDeleteModalOpen(false)
+  }
+
+  const baseUrl = 'https://localhost:44377/api/Alunos'
   async function getAlunos() {
     await axios
       .get(baseUrl)
@@ -74,7 +83,7 @@ export function App() {
 
   function selecionarAluno(aluno, opcao) {
     setAlunoSelecionado(aluno)
-    opcao === 'Editar' && openEditModal()
+    opcao === 'Editar' ? openEditModal() : openDeleteModal()
   }
 
   async function putAlunos() {
@@ -97,6 +106,17 @@ export function App() {
       .catch((error) => {
         console.error(error)
       })
+  }
+
+  async function deleteAlunos() {
+    await axios
+      .delete(baseUrl + '/' + alunoSelecionado.id)
+      .then((response) => {
+        setData(data.filter((aluno) => aluno.id !== response.data))
+        getAlunos()
+        closeDeleteModal()
+      })
+      .catch((error) => console.error(error))
   }
 
   return (
@@ -236,6 +256,20 @@ export function App() {
           </button>
           <button className="btn btn-neutral" onClick={closeEditModal}>
             Cancelar
+          </button>
+        </ModalFooter>
+      </Modal>
+
+      <Modal isOpen={isDeleteModalOpen}>
+        <ModalBody>
+          Confirmar a exclusão de: {alunoSelecionado && alunoSelecionado.nome}
+        </ModalBody>
+        <ModalFooter>
+          <button className="btn btn-danger" onClick={deleteAlunos}>
+            Sim
+          </button>
+          <button className="btn btn-neutral" onClick={closeDeleteModal}>
+            Não
           </button>
         </ModalFooter>
       </Modal>
